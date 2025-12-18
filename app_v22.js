@@ -165,6 +165,29 @@ const MENUS = {
         ],
     }, // 這裡原本多了一個 }，已移除，並補上逗號
 
+    'KMJ-TPE': {
+        meal_1: [
+            { 
+                code: 'MEL1', 
+                name: 'Kabayaki Style Grilled Eel', 
+                chinese: '蒲燒鰻魚・越光米飯', 
+                dessert: 'Seasonal Fruit' 
+            },
+            { 
+                code: 'MCK1', 
+                name: 'Pan Seared Chicken Thigh, Truffle Risotto', 
+                chinese: '香煎雞腿排・松露野蕈燉飯', 
+                dessert: 'Cheesecake' 
+            },
+            { 
+                code: 'MPK1', 
+                name: 'Parma Ham Wrapped Pork Tenderloin', 
+                chinese: '風乾火腿捲豬排・義式麵疙瘩', 
+                dessert: 'Cheesecake' 
+            },
+        ],
+        // KMJ 航線通常不需要選前菜(隨餐附)，所以不需要 appetizers 陣列
+    },
     'HKG-TPE': {
         meal_1: [
             { code: 'MSF1', name: 'Pan-Seared Scallop, Dried Scallop Egg White Fried Rice', chinese: '嫩煎干貝、瑤柱蛋白炒飯', dessert: 'ONE TRAY SERVICE' },
@@ -303,7 +326,7 @@ const ROUTES = [
     { id: 'TPE-OKA', name: 'Taipei - OKA/FUK/KMJ (SS)', type: 'SS' },
     { id: 'TPE-SHI', name: 'Taipei - SHI (USS)', type: 'SS' },
     { id: 'HKG-TPE', name: 'Hong Kong (HKG) - Taipei (SS)', type: 'SS' },
-    { id: ''KMJ-TPE'' name: 'Kumamoto (KMJ) - Taipei (SS)', type: 'SS' },
+    { id: 'KMJ-TPE', name: 'Kumamoto (KMJ) - Taipei (SS)', type: 'SS' },
 
     // --- S (Short) 短程 ---
     // 包含 NRT, KIX, SDJ (共用 TPE-NRT 菜單)
