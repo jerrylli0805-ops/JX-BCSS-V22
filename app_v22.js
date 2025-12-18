@@ -244,7 +244,7 @@ const MENUS = {
     'KMJ-TPE': {
         meal_1: [
             { 
-                code: 'MEL1', 
+                code: 'MFI1', 
                 name: 'Kabayaki Style Grilled Eel', 
                 chinese: '蒲燒鰻魚・越光米飯', 
                 dessert: 'ONE TRAY SERVICE' 
