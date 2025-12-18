@@ -3713,6 +3713,7 @@ if (syncElements.tabReceive) syncElements.tabReceive.addEventListener('click', (
 
 // --- Start Screen Logic (FIXED VERSION) ---
 // --- Start Screen Logic (FIXED FOR OFFLINE/RESTART) ---
+// --- Start Screen Logic (ROBUST OFFLINE FIX) ---
 document.addEventListener('DOMContentLoaded', () => {
     const startScreen = document.getElementById('start-screen');
     const startBtn = document.getElementById('start-btn');
@@ -3722,8 +3723,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const appContainer = document.getElementById('app');
     const inventoryModal = document.getElementById('inventory-modal');
 
-    // 1. 初始化隱藏
+    // 1. 初始化：強制隱藏系統層，確保 Start Screen 在最上層
     if (inventoryModal) {
+        // [FIX] 使用 inline style 強制隱藏，不依賴 Tailwind class (怕離線失效)
+        inventoryModal.style.display = 'none'; 
         inventoryModal.classList.add('hidden');
         inventoryModal.classList.remove('flex'); 
     }
@@ -3733,55 +3736,88 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // [FIXED] enterSystem: 按下按鈕後的邏輯
     const enterSystem = () => {
+        console.log("System Initiated...");
+
         // A. 淡出 Start Screen
-        startScreen.classList.add('opacity-0', 'pointer-events-none');
-        setTimeout(() => { startScreen.style.display = 'none'; }, 700);
+        if (startScreen) {
+            startScreen.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => { startScreen.style.display = 'none'; }, 700);
+        }
 
         // B. 顯示主程式背景容器
         if (appContainer) appContainer.classList.remove('hidden');
 
-        // C. [關鍵邏輯] 檢查是否有備份並嘗試還原
-        // 這裡會呼叫我們剛修好的 checkAndRestoreState
-        // 如果有備份且使用者按「Yes」-> 回傳 true -> 直接進入系統
-        // 如果沒備份 或 使用者按「No」 -> 回傳 false -> 打開 Setup 視窗
-        
-        const restored = checkAndRestoreState();
-
-        if (!restored) {
-            // 如果沒有還原 (或是第一次使用)，強制顯示 Setup 視窗
-            if (inventoryModal) {
-                inventoryModal.classList.remove('hidden');
-                inventoryModal.classList.add('flex'); 
-                
-                // 確保 Setup 視窗內的輸入框是乾淨的/預設的
-                setupInitialSelectors();
-                // 這裡可以預設選好第一個選項
-                appElements.aircraftSelect.selectedIndex = 0;
-                appElements.routeSelect.selectedIndex = 0;
-                setupInventoryInputs();
-            }
+        // C. 嘗試還原資料 (加入 try-catch 防止資料損壞導致卡死)
+        let restored = false;
+        try {
+            // 呼叫 checkAndRestoreState (請確保此函式已更新為回傳 true/false 的版本)
+            restored = checkAndRestoreState(); 
+        } catch (err) {
+            console.error("Restore crashed, forcing setup:", err);
+            restored = false; // 如果出錯，視為沒還原
         }
-        
-        // D. 嘗試全螢幕
-        if (document.documentElement.requestFullscreen) {
-            document.documentElement.requestFullscreen().catch(e => console.log('Fullscreen denied:', e));
+
+        // D. [關鍵修復] 如果沒有還原 (或使用者選 No)，強制開啟 Setup 視窗
+        if (!restored) {
+            console.log("Opening Setup Window...");
+            
+            // 重置所有關鍵變數，確保是乾淨的狀態
+            flightNumber = '';
+            orders = [];
+            currentSeatId = null;
+            mealInventory_1 = {};
+            mealInventory_2 = {};
+
+            if (inventoryModal) {
+                // 1. 移除 hidden class
+                inventoryModal.classList.remove('hidden');
+                inventoryModal.classList.add('flex');
+                
+                // 2. [重要] 強制設定 inline style (解決離線 CSS 可能失效的問題)
+                inventoryModal.style.display = 'flex'; 
+
+                // 3. 重新初始化下拉選單，確保有東西可以選
+                if (typeof setupInitialSelectors === 'function') setupInitialSelectors();
+                
+                // 4. 預設選取第一個選項
+                if (appElements.aircraftSelect) appElements.aircraftSelect.selectedIndex = 0;
+                if (appElements.routeSelect) appElements.routeSelect.selectedIndex = 0;
+                
+                // 5. 產生預設的輸入框
+                if (typeof setupInventoryInputs === 'function') setupInventoryInputs();
+                if (typeof renderPreSelectInputs === 'function') renderPreSelectInputs(); // 確保右側也渲染
+            } else {
+                alert("Error: Setup Modal not found!");
+            }
         }
     };
 
-    // 2. 檢測資源載入狀態 (保持不變)
+    // 2. 檢測資源載入狀態
     window.addEventListener('load', () => {
         setTimeout(() => {
             if (loadingSpinner) loadingSpinner.classList.add('hidden');
             if (startBtn) {
                 startBtn.classList.remove('hidden');
-                startBtn.classList.add('animate-bounce-slight');
+                // 稍微讓它彈跳一下提示使用者已就緒
+                startBtn.classList.add('animate-bounce');
+                setTimeout(() => startBtn.classList.remove('animate-bounce'), 1000);
             }
+            
+            // 離線狀態顯示
             if (readyMsg) {
                 readyMsg.innerHTML = '<i data-lucide="check-circle" class="w-3 h-3"></i> SYSTEM READY';
                 readyMsg.classList.remove('hidden');
+                // 嘗試重新渲染圖標 (如果 lucide 有載入的話)
                 if (typeof lucide !== 'undefined') lucide.createIcons();
             }
-            if (startBtn) startBtn.addEventListener('click', enterSystem);
+
+            // 綁定按鈕點擊
+            if (startBtn) {
+                // 先移除舊的監聽器避免重複 (雖然 reload 不會，但保險起見)
+                const newBtn = startBtn.cloneNode(true);
+                startBtn.parentNode.replaceChild(newBtn, startBtn);
+                newBtn.addEventListener('click', enterSystem);
+            }
         }, 800);
     });
 });
