@@ -241,9 +241,7 @@ const ICAO_SPML_CODES = {
     'NLML': 'Non-Lactose Meal (NLML)',
     'SFML': 'Seafood Meal (SFML)',
     'FPML': 'Fruit Platter Meal (FPML)',
-    'KSML': 'Kosher Meal (KSML)',
-    'MOML': 'Muslim Meal (MOML)',
-    'HNML': 'Hindu Non-Vegetarian Meal (HNML)',
+    'SPML': 'Special Special Meal (SPML)',
     'OTHER': 'Other (Please Specify)'
 };
 
