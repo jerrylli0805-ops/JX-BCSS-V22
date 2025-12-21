@@ -6,7 +6,7 @@ const STORAGE_KEY = 'STARLUX_FLIGHT_BACKUP_V1';
 function safeRenderIcons() {
     try {
         if (typeof lucide !== 'undefined' && lucide.createIcons) {
-            lucide.createIcons();
+            safeRenderIcons();
         }
     } catch (e) {
         console.warn('Icons failed to load (Offline mode?), ignoring error.', e);
@@ -701,7 +701,7 @@ function showDueServiceAlert(seatId) {
     appElements.dueServiceAlertModal.classList.replace('hidden', 'flex');
     
     // 重新渲染圖示 (因為 Modal 剛顯示出來)
-    lucide.createIcons();
+    safeRenderIcons();
 }
 
 // --- 模式切換與倒數計時 ---
@@ -1274,7 +1274,7 @@ function renderSeatLayout() {
         if (rowContainer.children.length > 0) appElements.seatLayout.appendChild(rowContainer);
     });
 
-    lucide.createIcons();
+    safeRenderIcons();
     renderOrderSummaryAggregate();
 }
 // [最終修正版] renderOrderSummaryAggregate - 解決捲動跳回頂部的問題
@@ -1411,7 +1411,7 @@ function renderOrderSummaryAggregate() {
     rightPanelHtml += `</div></div>`;
 
     appElements.summaryList.innerHTML = leftPanelHtml + rightPanelHtml;
-    lucide.createIcons(); // 重新渲染勾勾圖示
+    safeRenderIcons(); // 重新渲染勾勾圖示
 
     // --- [關鍵修正 3] 重繪完成後，馬上恢復捲動位置 ---
     const newScrollContainer = document.getElementById('beverage-scroll-container');
@@ -2146,7 +2146,7 @@ function setupBeverageOptions(container, selectedBeverages = [], checkboxName = 
     mainDiv.appendChild(renderGroup('WINE & COCKTAILS', groups.alcoholic, 'wine'));
 
     container.appendChild(mainDiv);
-    lucide.createIcons();
+    safeRenderIcons();
 }
 
 // [MODIFIED] openOrderModal
@@ -2351,7 +2351,7 @@ function openOrderModal(seatId) {
             };
             appElements.remarkTagsContainer.appendChild(btn);
         });
-        lucide.createIcons();
+        safeRenderIcons();
         appElements.submitOrderBtn.textContent = 'Confirm Order';
         show(appElements.submitOrderBtn, true);
     }
@@ -3520,7 +3520,7 @@ if (appElements.viewRBtn) {
 }
     setInterval(updateClock, 1000);
     updateClock();
-    lucide.createIcons();
+    safeRenderIcons();
     //checkAndRestoreState(); // <--- [加入這行] 網頁載入時自動檢查是否有未存檔的飛行
 } 
 
@@ -3847,7 +3847,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 readyMsg.innerHTML = '<i data-lucide="check-circle" class="w-3 h-3"></i> SYSTEM READY';
                 readyMsg.classList.remove('hidden');
                 // 嘗試重新渲染圖標 (如果 lucide 有載入的話)
-                if (typeof lucide !== 'undefined') lucide.createIcons();
+                if (typeof lucide !== 'undefined') safeRenderIcons();
             }
 
             // 綁定按鈕點擊
